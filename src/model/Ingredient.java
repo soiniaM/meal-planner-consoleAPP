@@ -3,27 +3,41 @@ package model;
 import java.util.UUID;
 
 public class Ingredient {
-    private UUID id;
-    private String name;
 
-    public Ingredient(String name) {
-        this.id = UUID.randomUUID();
-        this.name = name;;
+    private String name;
+    private double quantity;
+    private String unit;
+
+    public Ingredient(String name, double quantity, String unit) {
+        this.name = name.trim();
+        this.quantity = quantity;
+        this.unit = unit.trim();
     }
 
     public Ingredient() {
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
+    }
+
+    public double getQuantity() {
+        return quantity;
+    }
+
+    public String getUnit() {
+        return unit;
     }
 
     @Override
     public String toString() {
         return "Ingredient{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
+                ", quantity=" + quantity +
+                ", unit='" + unit + '\'' +
                 '}';
     }
+
+
 }
 

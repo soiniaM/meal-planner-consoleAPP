@@ -1,116 +1,344 @@
 package ui.recipe;
 
+import model.Ingredient;
 import model.Recipe;
-import model.RecipeCategory;
-import model.RecipeIngredient;
-import service.IRecipeService;
 import service.RecipeService;
+import ui.MainMenu;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class ManageRecipe {
-    public static void manageRecipes() {
-        Scanner scanner = new Scanner(System.in);
 
-        boolean running = true;
+   private static Scanner scanner = new Scanner(System.in);
 
-        while (running) {
+    public static void createRecipe() {
+        System.out.println();
+        System.out.println("\n=== Add a Recipe ===");
 
-            System.out.println();
-            System.out.println("--- Manage Recipes ---");
-            System.out.println("1. Add Recipe");
-            System.out.println("2. View Recipes");
-            System.out.println("3. Edit Recipe");
-            System.out.println("4. Delete Recipe");
-            System.out.println("0. Back to Main Menu");
-            System.out.println("Choose an option:");
+        Recipe recipe =  buildRecipe();
+        addIngredients(recipe);
 
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // consume the Enter key
-            switch (choice) {
-
-                case 1:
-                    addRecipe();
-                    break;
-
-                case 2:
-                    System.out.println("View Recipes selected.");
-                    break;
-
-                case 3:
-                    System.out.println("Edit Recipe selected.");
-                    break;
-
-                case 4:
-                    System.out.println("Delete Recipe selected.");
-                    break;
-
-                case 0:
-                    running = false;
-                    break;
-
-                default:
-                    System.out.println("Invalid option. Please try again.");
-            }
+        if (RecipeService.recipes.add(recipe)) {
+            System.out.println("Recipe added successfully: " );
+        } else {
+            System.out.println("Recipe already exists. No changes made.");
         }
 
     }
 
-    private static void addRecipe() {
-        RecipeCategory category;
-        IRecipeService recipeService = new RecipeService();
+    public static void viewAllRecipes() {
 
+        System.out.println("\n=== All Recipes ===");
+
+        if (RecipeService.recipes.isEmpty()) {
+            System.out.println("No recipes available. Add a recipe first.");
+            return;
+        }
+        int index = 1;
+
+        for (Recipe recipe : RecipeService.recipes) {
+            System.out.println("\n" + index + ". " + recipe.getName());
+            System.out.println("Ingredients:");
+            for (Ingredient ingredient : recipe.getIngredients()) {
+                System.out.printf("   - %-15s %s %s%n",
+                        ingredient.getName(),
+                        ingredient.getQuantity(),
+                        ingredient.getUnit());
+            }
+            index++;
+        }
+
+        System.out.println("\nTotal recipes: " + RecipeService.recipes.size());
+        }
+
+    public static void deleteRecipe() {
         Scanner scanner = new Scanner(System.in);
-        Recipe recipe = new Recipe();
-       // RecipeIngredient recipeIngredient = new RecipeIngredient();
 
-        System.out.println();
-        System.out.println("--- Add Recipe ---");
+        System.out.println("\n=== Delete a Recipe ===");
 
-        System.out.println("Enter recipe name:");
-        String name = scanner.nextLine();
+        if (RecipeService.recipes.isEmpty()) {
+            System.out.println("No recipes available to delete.");
+            return;
+        }
+
+        System.out.print("Enter recipe name to delete (0 to cancel): ");
+        String name = scanner.nextLine().trim();
+
+        if (name.equals("0")) {
+            return;
+        }
+            Recipe recipeToDelete = searchRecipeByName(name);
+
+
+        System.out.print("Are you sure you want to delete this recipe? (yes/no): ");
+        String confirmation = scanner.nextLine().trim();
+
+        if (confirmation.equalsIgnoreCase("yes")) {
+            RecipeService.recipes.remove(recipeToDelete);
+            System.out.println("Recipe deleted successfully.");
+        } else {
+            System.out.println("Deletion cancelled.");
+        }
+    }
+
+    public static void editRecipe() {
+
+        System.out.println("\n=== Edit a Recipe ===");
+
+        if (RecipeService.recipes.isEmpty()) {
+            System.out.println("No recipes available to edit.");
+            return;
+        }
+
+        System.out.print("Enter recipe name (0 to cancel): ");
+        String name = scanner.nextLine().trim();
+
+        if (name.equals("0")) {
+            return;
+        }
+
+        Recipe selectedRecipe = searchRecipeByName(name);
+
+        int choice =0 ;
+
+        do {
+            System.out.println("\n=== Edit Recipe Menu ===");
+            System.out.println("1. Rename Recipe");
+            System.out.println("2. Add Ingredient");
+            System.out.println("3. Remove Ingredient");
+            System.out.println("0. Back");
+            System.out.print("Enter your choice: ");
+
+            try {
+                choice = Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number.");
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    // Rename the recipe
+                    renameRecipe(selectedRecipe);
+                    break;
+                case 2:
+                    // Add an ingredient
+                    addIngredients(selectedRecipe);
+                    break;
+                case 3:
+                    // Remove an ingredient
+                    removeIngredient(selectedRecipe);
+                    break;
+                case 0:
+                    System.out.println("Returning to recipe menu.");
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+
+        } while (choice != 0);
+    }
+
+    public static Recipe chooseExistingRecipe() {
+
+        if (RecipeService.recipes.isEmpty()) {
+            System.out.println("No recipes available. Please add a recipe first.");
+            return null;
+        }
+
+        List<Recipe> recipeList = new ArrayList<>(RecipeService.recipes);
+
+        System.out.println("\n=== Available Recipes ===");
+
+        for (int i = 0; i < recipeList.size(); i++) {
+            System.out.println(
+                    (i + 1) + ". " + recipeList.get(i).getName()
+            );
+        }
+
+        System.out.println("0. Cancel");
+        System.out.print("Select a recipe: ");
+
+        try {
+            int choice = Integer.parseInt(scanner.nextLine().trim());
+
+            if (choice == 0) {
+                return null;
+            }
+
+            if (choice < 1 || choice > recipeList.size()) {
+                System.out.println("Invalid recipe selection.");
+                return null;
+            }
+
+            return recipeList.get(choice - 1);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input.");
+            return null;
+        }
+    }
+
+    private static void addIngredients(Recipe recipe) {
+
+        System.out.println("\n=== Add Ingredients ===");
+        System.out.println("Enter 0 to finished.");
+
+        while (true) {
+            System.out.print("Enter Ingredient name ( 0 to quick): ");
+            String name = scanner.nextLine().trim();
+
+            if (name.equalsIgnoreCase("0")) {
+                if (recipe.getIngredients().isEmpty()) {
+                    System.out.println("Please add at least one ingredient.");
+                    continue;
+                }
+
+                return;
+            }
+
+            if (name.isEmpty()) {
+                System.out.println("Ingredient name cannot be empty.");
+                continue;
+            }
+
+            System.out.print(" Enter Quantity: ");
+
+            double quantity;
+
+            try {
+                quantity = Double.parseDouble(scanner.nextLine().trim());
+
+                if (!Double.isFinite(quantity) || quantity <= 0) {
+                    System.out.println("Quantity must be a positive number.");
+                    continue;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number.");
+                continue;
+            }
+
+            System.out.print("Unit (g, ml, pieces, etc.): ");
+            String unit = scanner.nextLine().trim();
+
+            if (unit.isEmpty()) {
+                System.out.println("Unit cannot be empty.");
+                continue;
+            }
+
+            Ingredient ingredient = new Ingredient(name, quantity, unit);
+
+            if (recipe.addIngredient(ingredient)) {
+                System.out.println("Ingredient added: " + name);
+            } else {
+                System.out.println(
+                        "Ingredient already exists."
+                );
+            }
+        }
+    }
+
+    private static Recipe buildRecipe(){
+        String name = "";
+        while (name.isEmpty()) {
+            System.out.print("Enter recipe name (0 to return to main): ");
+            name = scanner.nextLine().trim();
+
+            if (name.equals("0")) {
+                MainMenu.getMainMenu();
+                break;
+            }
+
+            if (name.isEmpty()) {
+                System.out.println("Recipe name cannot be empty.");
+            }
+        }
         System.out.println("Enter number of service:");
         int service = scanner.nextInt();
 
         System.out.println("Enter description :");
         String description = scanner.nextLine();
-        do {
-            System.out.println(""" 
-                    Choose recipe category :
-                      1 BREAKFAST,
-                      2 LUNCH,
-                      3 DINNER,
-                      4 SNACK,
-                      5 DESSERT.
-                    """);
-            int choice = scanner.nextInt();
-            category = switch (choice) {
-                case 1 -> RecipeCategory.BREAKFAST;
-                case 2 -> RecipeCategory.LUNCH;
-                case 3 -> RecipeCategory.DINNER;
-                case 4 -> RecipeCategory.SNACK;
-                case 5 -> RecipeCategory.DESSERT;
-                default -> {
-                    System.out.println("Invalid choice. Please enter a number between 1 and 5.");
-                    yield null;
-                }
-            };
-        } while (category == null);
+    return new Recipe(name, service, description);
+    }
 
-        int inputValue = 0;
-        System.out.println("""
-                press:  1 to enter Ingredient for this recipe
-                        0 to quick
-                                      \s""");
-        inputValue = scanner.nextInt();
+    private static void renameRecipe(Recipe recipe) {
 
-        while (inputValue != 0) {
-           inputValue = ManageIngredient.addIngredientMenu();
+        System.out.print("Enter new recipe name (0 to cancel): ");
+        String newName = scanner.nextLine().trim();
+
+        if (newName.equals("0")) {
+            return;
         }
-        recipeService.addRecipe(name,category,description,service,ManageIngredient.recipeIngredients);
-        ManageIngredient.recipeIngredients.clear();
 
+        if (newName.isEmpty()) {
+            System.out.println("Recipe name cannot be empty.");
+            return;
+        }
+
+        Recipe existingRecipe = buildRecipe();
+
+        if (RecipeService.recipes.contains(existingRecipe)) {
+            System.out.println("A recipe with this name already exists.");
+            return;
+        }
+
+        RecipeService.recipes.remove(recipe);
+        recipe.setName(newName);
+        RecipeService.recipes.add(recipe);
+
+        System.out.println("Recipe renamed successfully.");
+    }
+
+    private static Recipe searchRecipeByName(String name){
+    Recipe recipeFound = null;
+
+    for (Recipe recipe : RecipeService.recipes) {
+        if (recipe.getName().equalsIgnoreCase(name)) {
+            recipeFound = recipe;
+            break;
+        }
+    }
+
+    if (recipeFound == null) {
+        System.out.println("Recipe not found: " + name);
+        return recipeFound;
+    }
+
+    System.out.println("\nRecipe details:");
+    System.out.println(recipeFound);
+    return recipeFound;
+}
+
+    private static void removeIngredient(Recipe recipe) {
+
+        if (recipe.getIngredients().isEmpty()) {
+            System.out.println("This recipe has no ingredients.");
+            return;
+        }
+
+        System.out.println("\n=== Ingredients ===");
+
+        for (Ingredient ingredient : recipe.getIngredients()) {
+            System.out.println("- " + ingredient.getName());
+        }
+
+        System.out.print("Enter ingredient name to remove (0 to cancel): ");
+        String name = scanner.nextLine().trim();
+
+        if (name.equals("0")) {
+            return;
+        }
+
+        boolean removed = recipe.getIngredients().removeIf(
+                ingredient -> ingredient.getName().equalsIgnoreCase(name)
+        );
+
+        if (removed) {
+            System.out.println("Ingredient removed successfully.");
+        } else {
+            System.out.println("Ingredient not found.");
+        }
     }
 }

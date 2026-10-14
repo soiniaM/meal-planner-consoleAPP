@@ -1,20 +1,17 @@
 package model;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Recipe {
-    private UUID recipeId;
+
     private String name;
-    private RecipeCategory category;
+    // private RecipeCategory category;
     private String description;
     private int service; //number of service
-   private List<Ingredient> ingredients;
+   private Set<Ingredient> ingredients = new HashSet<>();
 
-    public Recipe(String name, RecipeCategory category, int service,String desciption) {
-        this.recipeId = UUID.randomUUID();
+    public Recipe(String name, int service,String desciption) {
         this.name = name;
-        this.category = category;
         this.service=service;
         this.description=desciption;
     }
@@ -26,10 +23,6 @@ public class Recipe {
         return name;
     }
 
-    public RecipeCategory getCategory() {
-        return category;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -38,21 +31,51 @@ public class Recipe {
         this.description = description;
     }
 
-    public void setCategory(RecipeCategory category) {
-        this.category = category;
-    }
 
     public void setService(int service) {
         this.service = service;
     }
 
-    public void setIngredients(List<Ingredient> ingredients) {
+    public void setIngredients(Set<Ingredient> ingredients) {
         this.ingredients = ingredients;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof Recipe other)) {
+            return false;
+        }
+
+        return name.trim().equalsIgnoreCase(other.name.trim());
     }
 
     @Override
-    public String toString(){
-        return  "Recipe [Name:" + name + " Category; "+ category +"]";
+    public int hashCode() {
+        return Objects.hash(name.trim().toLowerCase(Locale.ROOT));
+    }
 
+    public Set<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
+    public boolean addIngredient(Ingredient ingredient) {
+            if ( !ingredients.add(ingredient)) {
+                return false;
+            }
+        ingredients.add(ingredient);
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Recipe{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", service=" + service +
+                ", ingredients=" + ingredients +
+                '}';
     }
 }

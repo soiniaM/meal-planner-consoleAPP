@@ -1,6 +1,6 @@
 package model;
 
-public enum RecipeCategory {
+public enum MealType {
     BREAKFAST,
     LUNCH,
     DINNER,

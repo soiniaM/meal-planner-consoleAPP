@@ -1,19 +1,22 @@
 package ui;
 
-import ui.recipe.ManageRecipe;
+import com.sun.tools.javac.Main;
+import ui.meal_plan.ManageMealPlanConsole;
+import ui.recipe.ManageRecipeConsole;
 
-public class ConsoleMenu {
+public class EntryChoice {
 
     public static void menuChoice(int choiceNumber){
         switch (choiceNumber) {
 
             case 1:
-                ManageRecipe.manageRecipes();
+                ManageRecipeConsole.manageRecipes();
                // System.out.println("Recipe management selected.");
                 break;
 
             case 2:
-                System.out.println("Meal planning selected.");
+                ManageMealPlanConsole.manageWeeklyMealPlans();
+                //System.out.println("Meal planning selected.");
                 break;
 
             case 3:
@@ -29,7 +32,8 @@ public class ConsoleMenu {
                 break;
 
             case 0:
-                System.out.println("Thank you for using Meal Planner!");
+                MainMenu.getMainMenu();
+               // System.out.println("Thank you for using Meal Planner!");
                 System.exit(0);
                 break;
 
