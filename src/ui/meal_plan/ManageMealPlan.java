@@ -1,5 +1,6 @@
 package ui.meal_plan;
 
+import model.Ingredient;
 import model.MealPlan;
 import model.MealType;
 import model.Recipe;
@@ -11,7 +12,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class ManageMealPlan {
    private static Scanner scanner = new Scanner(System.in);
@@ -97,6 +100,51 @@ public class ManageMealPlan {
         }
 
         displayMealPlanTable(startDate, endDate, matchingMeals);
+        // Ask whether the user wants a shopping list
+        System.out.print(
+                "\nWould you like to generate a shopping list? (yes/no): ");
+        String answer = scanner.nextLine().trim();
+
+        if (answer.equalsIgnoreCase("yes")
+                || answer.equalsIgnoreCase("y")) {
+
+            generateShoppingList(matchingMeals);
+        }
+    }
+    private static void generateShoppingList(List<MealPlan> meals) {
+
+        Map<String, Double> quantities = meals.stream()
+                // Get the recipes from the planned meals
+                .map(MealPlan::getRecipe)
+
+                // Flatten all recipe ingredients into one stream
+                .flatMap(recipe -> recipe.getIngredients().stream())
+
+                // Group by ingredient name and unit
+                .collect(Collectors.groupingBy(
+                        ri -> ri.getName().trim().toLowerCase()
+                                + "|" + ri.getUnit().toString().toLowerCase(),
+
+                        // Sum quantities for matching ingredients and units
+                        Collectors.summingDouble(
+                                Ingredient::getQuantity)
+                ));
+
+        displayShoppingList(quantities);
+    }
+
+    private static  void displayShoppingList(Map<String, Double> quantities) {
+
+        System.out.println("\n========== SHOPPING LIST ==========");
+
+        quantities.forEach((key, quantity) -> {
+            String[] parts = key.split("\\|");
+
+            System.out.printf(
+                    "%-25s %-15.2f %-15s%n",
+                    parts[0], quantity, parts[1]
+            );
+        });
     }
 
     private static LocalDate readDate(String prompt) {
