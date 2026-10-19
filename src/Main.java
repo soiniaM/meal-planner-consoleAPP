@@ -1,8 +1,8 @@
-import ui.EntryChoice;
 import ui.MainMenu;
 
-void main() {
+public class Main {
+    public static void main(String[] args) {
 
-      MainMenu.getMainMenu();
-
+        MainMenu.getMainMenu();
     }
+}

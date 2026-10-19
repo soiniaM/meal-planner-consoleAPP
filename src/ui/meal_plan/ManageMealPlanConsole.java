@@ -1,12 +1,20 @@
 package ui.meal_plan;
 
+import service.AIMealPlanService;
+import service.IAIMealPlanService;
+import service.IMealPlanService;
+import service.MealPlanService;
 import ui.MainMenu;
 
 import java.util.Scanner;
 
 public class ManageMealPlanConsole {
 
-    public static void manageWeeklyMealPlans() {
+     private static IMealPlanService mealPlanService;
+    private static IAIMealPlanService aimealPlanService = null;
+
+
+    public void manageWeeklyMealPlans() {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -29,11 +37,11 @@ public class ManageMealPlanConsole {
 
             switch (choice) {
                 case 1:
-                    ManageMealPlan.createWeeklyMealPlan();
+                    mealPlanService.createWeeklyMealPlan();
                     break;
 
                 case 2:
-                   ManageMealPlan.viewWeeklyMealPlans();
+                   mealPlanService.viewWeeklyMealPlans();
                     break;
 
                 case 3:
@@ -51,5 +59,8 @@ public class ManageMealPlanConsole {
                     System.out.println("Invalid choice. Please try again.");
             }
         }
+    }
+    public static void generateMealsPlan(){
+        aimealPlanService.generateMealsPlan();
     }
 }

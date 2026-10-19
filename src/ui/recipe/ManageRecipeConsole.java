@@ -1,7 +1,5 @@
 package ui.recipe;
 
-import model.Ingredient;
-import model.Recipe;
 import service.IRecipeService;
 import service.RecipeService;
 import ui.MainMenu;
@@ -9,7 +7,9 @@ import ui.MainMenu;
 import java.util.Scanner;
 
 public class ManageRecipeConsole {
-    public static void manageRecipes() {
+
+    public void manageRecipes() {
+         IRecipeService recipeService = new RecipeService();
         Scanner scanner = new Scanner(System.in);
 
         boolean running = true;
@@ -30,21 +30,21 @@ public class ManageRecipeConsole {
             switch (choice) {
 
                 case 1:
-                    ManageRecipe.createRecipe();
+                    recipeService.createRecipe();
                     break;
 
                 case 2:
-                    ManageRecipe.viewAllRecipes();
+                    recipeService.viewAllRecipes();
              //      System.out.println("View Recipes selected.");
                     break;
 
                 case 3:
-                    ManageRecipe.editRecipe();
+                    recipeService.editRecipe();
                     //System.out.println("Edit Recipe selected.");
                     break;
 
                 case 4:
-                    ManageRecipe.deleteRecipe();
+                    recipeService.deleteRecipe();
                     //System.out.println("Delete Recipe selected.");
                     break;
 

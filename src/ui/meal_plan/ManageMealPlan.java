@@ -2,25 +2,43 @@ package ui.meal_plan;
 
 import model.Ingredient;
 import model.MealPlan;
-import model.MealType;
-import model.Recipe;
 import service.MealPlanService;
-import service.RecipeService;
-import ui.recipe.ManageRecipe;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class ManageMealPlan {
-   private static Scanner scanner = new Scanner(System.in);
-    static MealType mealType;
+    private static final Scanner scanner = new Scanner(System.in);
 
+    public static LocalDate readDate(String prompt) {
+
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.equals("0")) {
+                return null;
+            }
+
+            try {
+                return LocalDate.parse(input);
+            } catch (DateTimeParseException e) {
+                System.out.println(
+                        "Invalid date. Use yyyy-MM-dd or enter 0 to go back."
+                );
+            }
+        }
+    }
+
+
+
+    /*
     public static void createWeeklyMealPlan() {
+        MealType mealType;
         System.out.println("\n=== Create Weekly Meal Plan ===");
 
         if (RecipeService.recipes.isEmpty()) {
@@ -53,7 +71,7 @@ public class ManageMealPlan {
                 return;
             }
         }
-        Recipe selectedRecipe = selectOrCreateRecipeRecipe();
+        Recipe selectedRecipe = selectOrCreateRecipe();
 
         if (selectedRecipe == null) {
             System.out.println("Meal planning cancelled.");
@@ -69,7 +87,9 @@ public class ManageMealPlan {
         System.out.println("Recipe: " + selectedRecipe.getName());
 
     }
+*/
 
+    /*
     public static void viewWeeklyMealPlans() {
 
         LocalDate startDate = readDate("Enter start date (yyyy-MM-dd): ");
@@ -87,17 +107,7 @@ public class ManageMealPlan {
             return;
         }
 
-        List<MealPlan> matchingMeals = MealPlanService.mealPlans.stream()
-                .filter(meal -> !meal.getDate().isBefore(startDate))
-                .filter(meal -> !meal.getDate().isAfter(endDate))
-                .sorted(Comparator.comparing(MealPlan::getDate)
-                        .thenComparing(MealPlan::getMealType))
-                .toList();
-
-        if (matchingMeals.isEmpty()) {
-            System.out.println("No meals planned for this date interval.");
-            return;
-        }
+        List<MealPlan> matchingMeals = mealPlanService.getMealPlanByDates(startDate, endDate);
 
         displayMealPlanTable(startDate, endDate, matchingMeals);
         // Ask whether the user wants a shopping list
@@ -111,117 +121,28 @@ public class ManageMealPlan {
             generateShoppingList(matchingMeals);
         }
     }
-    private static void generateShoppingList(List<MealPlan> meals) {
 
-        Map<String, Double> quantities = meals.stream()
-                // Get the recipes from the planned meals
-                .map(MealPlan::getRecipe)
+ */
 
-                // Flatten all recipe ingredients into one stream
-                .flatMap(recipe -> recipe.getIngredients().stream())
+/*
+    private static List<MealPlan> getMatchingMeals(LocalDate startDate, LocalDate endDate) {
 
-                // Group by ingredient name and unit
-                .collect(Collectors.groupingBy(
-                        ri -> ri.getName().trim().toLowerCase()
-                                + "|" + ri.getUnit().toString().toLowerCase(),
+        List<MealPlan> matchingMeals = MealPlanService.mealPlans.stream()
+                .filter(meal -> !meal.getDate().isBefore(startDate))
+                .filter(meal -> !meal.getDate().isAfter(endDate))
+                .sorted(Comparator.comparing(MealPlan::getDate)
+                        .thenComparing(MealPlan::getMealType))
+                .toList();
 
-                        // Sum quantities for matching ingredients and units
-                        Collectors.summingDouble(
-                                Ingredient::getQuantity)
-                ));
-
-        displayShoppingList(quantities);
-    }
-
-    private static  void displayShoppingList(Map<String, Double> quantities) {
-
-        System.out.println("\n========== SHOPPING LIST ==========");
-
-        quantities.forEach((key, quantity) -> {
-            String[] parts = key.split("\\|");
-
-            System.out.printf(
-                    "%-25s %-15.2f %-15s%n",
-                    parts[0], quantity, parts[1]
-            );
-        });
-    }
-
-    private static LocalDate readDate(String prompt) {
-
-        while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
-
-            if (input.equals("0")) {
-                return null;
-            }
-
-            try {
-                return LocalDate.parse(input);
-            } catch (DateTimeParseException e) {
-                System.out.println(
-                        "Invalid date. Use yyyy-MM-dd or enter 0 to go back."
-                );
-            }
+        if (matchingMeals.isEmpty()) {
+            System.out.println("No meals planned for this date interval.");
+            return List.of();
         }
+        return matchingMeals;
     }
 
-    private static void displayMealPlanTable(
-            LocalDate startDate,
-            LocalDate endDate,
-            List<MealPlan> meals) {
-
-        System.out.println();
-        System.out.printf("%-40s","WEEKLY MEAL PLAN");
-        System.out.println(startDate + " to " + endDate);
-        System.out.println(" ");
-        System.out.printf(
-                "%-15s %-25s %-25s %-25s%n",
-                "DATE", "BREAKFAST", "LUNCH", "DINNER"
-        );
-
-        System.out.println("-".repeat(90));
-
-        for (LocalDate date = startDate;
-        !date.isAfter(endDate);
-        date = date.plusDays(1)) {
-
-            String breakfast = "-";
-            String lunch = "-";
-            String dinner = "-";
-
-            for (MealPlan meal : meals) {
-
-                if (!meal.getDate().equals(date)) {
-                    continue;
-                }
-
-                String recipeName = meal.getRecipe().getName();
-
-                switch (meal.getMealType()) {
-                    case BREAKFAST:
-                        breakfast = recipeName;
-                        break;
-                    case LUNCH:
-                        lunch = recipeName;
-                        break;
-                    case DINNER:
-                        dinner = recipeName;
-                        break;
-                }
-            }
-
-            System.out.printf(
-                    "%-15s %-25s %-25s %-25s%n",
-                    date.getDayOfWeek(),
-                    breakfast,
-                    lunch,
-                    dinner
-            );
-        }
-    }
-
+ */
+/*
     private static MealType getMealType(){
         while (true) {
         System.out.println("\nSelect meal type:");
@@ -252,7 +173,7 @@ public class ManageMealPlan {
     }
         }
 
-    private static Recipe selectOrCreateRecipeRecipe() {
+    private static Recipe selectOrCreateRecipe() {
 
         while (true) {
             System.out.println("\n=== Recipe Selection ===");
@@ -285,5 +206,7 @@ public class ManageMealPlan {
             }
         }
     }
+
+ */
 
 }

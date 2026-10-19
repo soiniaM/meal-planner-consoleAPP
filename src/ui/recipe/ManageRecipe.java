@@ -13,7 +13,7 @@ public class ManageRecipe {
 
    private static Scanner scanner = new Scanner(System.in);
 
-    public static void createRecipe() {
+  /*  public void createRecipe() {
         System.out.println();
         System.out.println("\n=== Add a Recipe ===");
 
@@ -52,42 +52,83 @@ public class ManageRecipe {
 
         System.out.println("\nTotal recipes: " + RecipeService.recipes.size());
         }
+        */
 
-    public static void deleteRecipe() {
-        Scanner scanner = new Scanner(System.in);
+    public static Recipe chooseExistingRecipe() {
 
-        System.out.println("\n=== Delete a Recipe ===");
-
-        if (RecipeService.recipes.isEmpty()) {
-            System.out.println("No recipes available to delete.");
-            return;
+        if (RecipeService.recipeList.isEmpty()) {
+            System.out.println("No recipes available. Please add a recipe first.");
+            return null;
         }
 
-        System.out.print("Enter recipe name to delete (0 to cancel): ");
-        String name = scanner.nextLine().trim();
+        List<Recipe> recipeList = new ArrayList<>(RecipeService.recipeList);
 
-        if (name.equals("0")) {
-            return;
+        System.out.println("\n=== Available Recipes ===");
+
+        for (int i = 0; i < recipeList.size(); i++) {
+            System.out.println(
+                    (i + 1) + ". " + recipeList.get(i).getName()
+            );
         }
-            Recipe recipeToDelete = searchRecipeByName(name);
 
+        System.out.println("0. Cancel");
+        System.out.print("Select a recipe: ");
 
-        System.out.print("Are you sure you want to delete this recipe? (yes/no): ");
-        String confirmation = scanner.nextLine().trim();
+        try {
+            int choice = Integer.parseInt(scanner.nextLine().trim());
 
-        if (confirmation.equalsIgnoreCase("yes")) {
-            RecipeService.recipes.remove(recipeToDelete);
-            System.out.println("Recipe deleted successfully.");
-        } else {
-            System.out.println("Deletion cancelled.");
+            if (choice == 0) {
+                return null;
+            }
+
+            if (choice < 1 || choice > recipeList.size()) {
+                System.out.println("Invalid recipe selection.");
+                return null;
+            }
+
+            return recipeList.get(choice - 1);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input.");
+            return null;
         }
     }
+
+    public static void deleteRecipe() {
+      Scanner scanner = new Scanner(System.in);
+
+      System.out.println("\n=== Delete a Recipe ===");
+
+      if (RecipeService.recipeList.isEmpty()) {
+          System.out.println("No recipes available to delete.");
+          return;
+      }
+
+      System.out.print("Enter recipe name to delete (0 to cancel): ");
+      String name = scanner.nextLine().trim();
+
+      if (name.equals("0")) {
+          return;
+      }
+      Recipe recipeToDelete = searchRecipeByName(name);
+
+
+      System.out.print("Are you sure you want to delete this recipe? (yes/no): ");
+      String confirmation = scanner.nextLine().trim();
+
+      if (confirmation.equalsIgnoreCase("yes")) {
+          RecipeService.recipeList.remove(recipeToDelete);
+          System.out.println("Recipe deleted successfully.");
+      } else {
+          System.out.println("Deletion cancelled.");
+      }
+  }
 
     public static void editRecipe() {
 
         System.out.println("\n=== Edit a Recipe ===");
 
-        if (RecipeService.recipes.isEmpty()) {
+        if (RecipeService.recipeList.isEmpty()) {
             System.out.println("No recipes available to edit.");
             return;
         }
@@ -141,47 +182,7 @@ public class ManageRecipe {
         } while (choice != 0);
     }
 
-    public static Recipe chooseExistingRecipe() {
-
-        if (RecipeService.recipes.isEmpty()) {
-            System.out.println("No recipes available. Please add a recipe first.");
-            return null;
-        }
-
-        List<Recipe> recipeList = new ArrayList<>(RecipeService.recipes);
-
-        System.out.println("\n=== Available Recipes ===");
-
-        for (int i = 0; i < recipeList.size(); i++) {
-            System.out.println(
-                    (i + 1) + ". " + recipeList.get(i).getName()
-            );
-        }
-
-        System.out.println("0. Cancel");
-        System.out.print("Select a recipe: ");
-
-        try {
-            int choice = Integer.parseInt(scanner.nextLine().trim());
-
-            if (choice == 0) {
-                return null;
-            }
-
-            if (choice < 1 || choice > recipeList.size()) {
-                System.out.println("Invalid recipe selection.");
-                return null;
-            }
-
-            return recipeList.get(choice - 1);
-
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input.");
-            return null;
-        }
-    }
-
-    private static void addIngredients(Recipe recipe) {
+    public static void addIngredients(Recipe recipe) {
 
         System.out.println("\n=== Add Ingredients ===");
         System.out.println("Enter 0 to finished.");
@@ -240,7 +241,7 @@ public class ManageRecipe {
         }
     }
 
-    private static Recipe buildRecipe(){
+    public  static Recipe buildRecipe(){
         String name = "";
         while (name.isEmpty()) {
             System.out.print("Enter recipe name (0 to return to main): ");
@@ -279,14 +280,14 @@ public class ManageRecipe {
 
         Recipe existingRecipe = buildRecipe();
 
-        if (RecipeService.recipes.contains(existingRecipe)) {
+        if (RecipeService.recipeList.contains(existingRecipe)) {
             System.out.println("A recipe with this name already exists.");
             return;
         }
 
-        RecipeService.recipes.remove(recipe);
+        RecipeService.recipeList.remove(recipe);
         recipe.setName(newName);
-        RecipeService.recipes.add(recipe);
+        RecipeService.recipeList.add(recipe);
 
         System.out.println("Recipe renamed successfully.");
     }
@@ -294,7 +295,7 @@ public class ManageRecipe {
     private static Recipe searchRecipeByName(String name){
     Recipe recipeFound = null;
 
-    for (Recipe recipe : RecipeService.recipes) {
+    for (Recipe recipe : RecipeService.recipeList) {
         if (recipe.getName().equalsIgnoreCase(name)) {
             recipeFound = recipe;
             break;

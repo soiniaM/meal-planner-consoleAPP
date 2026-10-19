@@ -1,34 +1,39 @@
 package ui;
 
-import com.sun.tools.javac.Main;
 import ui.meal_plan.ManageMealPlanConsole;
 import ui.recipe.ManageRecipeConsole;
+import ui.shopping_list.ManageShoppingListConsole;
 
-public class EntryChoice {
+public class Dispatcher {
+    private final ManageRecipeConsole manageRecipeConsole = new ManageRecipeConsole();
+    private final ManageMealPlanConsole manageMealPlanConsole = new ManageMealPlanConsole();
 
-    public static void menuChoice(int choiceNumber){
+    public  void dispatch(int choiceNumber){
         switch (choiceNumber) {
 
             case 1:
-                ManageRecipeConsole.manageRecipes();
+                manageRecipeConsole.manageRecipes();
                // System.out.println("Recipe management selected.");
                 break;
 
             case 2:
-                ManageMealPlanConsole.manageWeeklyMealPlans();
+                manageMealPlanConsole.manageWeeklyMealPlans();
                 //System.out.println("Meal planning selected.");
                 break;
 
             case 3:
-                System.out.println("Shopping list selected.");
+               ManageShoppingListConsole.viewShoppingList();
+                //System.out.println("Shopping list selected.");
                 break;
 
             case 4:
+
                 System.out.println("Expense tracking selected.");
                 break;
 
             case 5:
-                System.out.println("Weekly summary selected.");
+                ManageMealPlanConsole.generateMealsPlan();
+              //  System.out.println("Weekly summary selected.");
                 break;
 
             case 0:
