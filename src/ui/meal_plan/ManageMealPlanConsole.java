@@ -6,13 +6,12 @@ import service.IMealPlanService;
 import service.MealPlanService;
 import ui.MainMenu;
 
+import java.net.http.HttpClient;
 import java.util.Scanner;
 
 public class ManageMealPlanConsole {
 
-     private static IMealPlanService mealPlanService;
-    private static IAIMealPlanService aimealPlanService = null;
-
+     private final IMealPlanService mealPlanService = new MealPlanService();
 
     public void manageWeeklyMealPlans() {
         Scanner scanner = new Scanner(System.in);
@@ -59,8 +58,5 @@ public class ManageMealPlanConsole {
                     System.out.println("Invalid choice. Please try again.");
             }
         }
-    }
-    public static void generateMealsPlan(){
-        aimealPlanService.generateMealsPlan();
     }
 }

@@ -1,12 +1,18 @@
 package ui;
 
+import service.AIMealPlanService;
+import service.IAIMealPlanService;
 import ui.meal_plan.ManageMealPlanConsole;
 import ui.recipe.ManageRecipeConsole;
 import ui.shopping_list.ManageShoppingListConsole;
 
+import java.net.http.HttpClient;
+
 public class Dispatcher {
     private final ManageRecipeConsole manageRecipeConsole = new ManageRecipeConsole();
     private final ManageMealPlanConsole manageMealPlanConsole = new ManageMealPlanConsole();
+    private final ManageShoppingListConsole manageShoppingListConsole = new ManageShoppingListConsole();
+    private  final IAIMealPlanService iaiMealPlanService = new AIMealPlanService(HttpClient.newHttpClient());
 
     public  void dispatch(int choiceNumber){
         switch (choiceNumber) {
@@ -22,7 +28,7 @@ public class Dispatcher {
                 break;
 
             case 3:
-               ManageShoppingListConsole.viewShoppingList();
+                manageShoppingListConsole.viewShoppingList();
                 //System.out.println("Shopping list selected.");
                 break;
 
@@ -32,7 +38,7 @@ public class Dispatcher {
                 break;
 
             case 5:
-                ManageMealPlanConsole.generateMealsPlan();
+                iaiMealPlanService.generateMealsPlan();
               //  System.out.println("Weekly summary selected.");
                 break;
 

@@ -17,14 +17,15 @@ import java.util.Set;
 public class AIMealPlanService implements  IAIMealPlanService{
     private static final String OLLAMA_URL = "http://localhost:11434/api/chat";
     private static final String MODEL = "llama3.2";
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper= new ObjectMapper();
     private final HttpClient client;
 
-    public AIMealPlanService(ObjectMapper objectMapper, HttpClient client) {
-        this.objectMapper = objectMapper;
+    public AIMealPlanService(HttpClient client) {
+
         this.client = client;
     }
 
+    @Override
     public String generateMealsPlan() {
         String answer = " ";
         String prompt = buildPrompt(RecipeService.recipeList);

@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ManageShoppingListConsole {
 
-    public static void viewShoppingList() {
+    public void viewShoppingList() {
         MealPlanService mealPlanService = new MealPlanService();
         ShoppingListService shoppingListService = new ShoppingListService();
 
