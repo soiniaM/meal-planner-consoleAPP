@@ -185,21 +185,14 @@ public class ManageRecipe {
     public static void addIngredients(Recipe recipe) {
 
         System.out.println("\n=== Add Ingredients ===");
-        System.out.println("Enter 0 to finished.");
+        System.out.println("Enter 0 at any time to finish.");
 
         while (true) {
-            System.out.print("Enter Ingredient name ( 0 to quick): ");
+            System.out.print("Enter Ingredient name ( 0 to finish): ");
             String name = scanner.nextLine().trim();
-
-            if (name.equalsIgnoreCase("0")) {
-                if (recipe.getIngredients().isEmpty()) {
-                    System.out.println("Please add at least one ingredient.");
-                    continue;
-                }
-
+            if (name.equals("0")) {
                 return;
             }
-
             if (name.isEmpty()) {
                 System.out.println("Ingredient name cannot be empty.");
                 continue;

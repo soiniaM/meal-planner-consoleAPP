@@ -2,6 +2,7 @@ package ui;
 
 import service.AIMealPlanService;
 import service.IAIMealPlanService;
+import ui.ai_meal_plan.AiManageMealPlanConsole;
 import ui.meal_plan.ManageMealPlanConsole;
 import ui.recipe.ManageRecipeConsole;
 import ui.shopping_list.ManageShoppingListConsole;
@@ -10,7 +11,7 @@ public class Dispatcher {
     private final ManageRecipeConsole manageRecipeConsole = new ManageRecipeConsole();
     private final ManageMealPlanConsole manageMealPlanConsole = new ManageMealPlanConsole();
     private final ManageShoppingListConsole manageShoppingListConsole = new ManageShoppingListConsole();
-    private  final IAIMealPlanService iaiMealPlanService = new AIMealPlanService();
+    private  final AiManageMealPlanConsole aiManageMealPlanConsole = new AiManageMealPlanConsole();
 
     public  void dispatch(int choiceNumber){
         switch (choiceNumber) {
@@ -36,7 +37,7 @@ public class Dispatcher {
                 break;
 
             case 5:
-                iaiMealPlanService.generateAIWeeklyMealPlan();
+                aiManageMealPlanConsole.generateAIWeeklyMealPlan();
               //  System.out.println("Weekly summary selected.");
                 break;
 

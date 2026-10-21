@@ -13,13 +13,11 @@ public class AIMealPlanService implements  IAIMealPlanService{
 
     private final ObjectMapper objectMapper= new ObjectMapper();
     private final OllamaService ollamaService = new OllamaService();
-    private final  Scanner scanner= new Scanner(System.in);
-    private final AiManageMealPlanConsole aiManageMealPlanConsole =
-            new AiManageMealPlanConsole();
+    Set<Recipe> recipes = RecipeService.recipeList;
+    private AiManageMealPlanConsole aiManageMealPlanConsole= new AiManageMealPlanConsole();
 
     @Override
-    public List<MealPlan>  generateAIWeeklyMealPlan() {
-        Set<Recipe> recipes = RecipeService.recipeList;
+    public void generateAIWeeklyMealPlan() {
         List<MealPlan> proposedPlan = new ArrayList<>();
 
         if (recipes.isEmpty()) {
@@ -38,21 +36,22 @@ public class AIMealPlanService implements  IAIMealPlanService{
             proposedPlan = convertToMealPlans(weeklyPlan, recipes, startDate);
             aiManageMealPlanConsole.displayWeeklyMealPlan(proposedPlan);
 
-            if (!confirmWeeklyMealPlan()) {
+            aiManageMealPlanConsole.modifyWeeklyMealPlan(proposedPlan, recipes);
+
+            if (!aiManageMealPlanConsole.confirmWeeklyMealPlan()) {
                 System.out.println("Plan discarded. Nothing was saved.");
+                return;
             }
 
-            //    modifyWeeklyMealPlan(proposedPlan, recipes);
-
-           validateAndSaveWeeklyMealPlan(proposedPlan, recipes, startDate);
+            validateAndSaveWeeklyMealPlan(proposedPlan, recipes, startDate);
 
         } catch (Exception e) {
             System.out.println("Could not generate the meal plan: "
                     + e.getMessage());
         }
-   return proposedPlan;
     }
-    private void validateAndSaveWeeklyMealPlan(
+    @Override
+    public void validateAndSaveWeeklyMealPlan(
             List<MealPlan> proposedPlan,
             Set<Recipe> recipes,
             LocalDate startDate) {
@@ -137,6 +136,7 @@ public class AIMealPlanService implements  IAIMealPlanService{
         System.out.println(
                 "\nAI weekly meal plan saved successfully!");
     }
+
     @Override
     public AIWeeklyPlan generateWeeklyPlan(Set<Recipe> recipeList) {
         if (recipeList.isEmpty()) {
@@ -164,109 +164,7 @@ public class AIMealPlanService implements  IAIMealPlanService{
         }
     }
 
-    private void modifyWeeklyMealPlan(
-            List<MealPlan> proposedPlan,
-            Set<Recipe> recipes) {
-        MealPlanService mealPlanService = new MealPlanService();
 
-        while (true) {
-            System.out.println("\n1. Modify a meal");
-            System.out.println("0. Finish editing");
-
-            System.out.print("Choose an option: ");
-            String choice = scanner.nextLine().trim();
-
-            if (choice.equals("0")) {
-                return;
-            }
-
-            if (!choice.equals("1")) {
-                System.out.println("Invalid option.");
-                continue;
-            }
-
-            aiManageMealPlanConsole.displayWeeklyMealPlan(proposedPlan);
-
-            LocalDate date;
-
-            try {
-                System.out.print("Enter the date to modify (YYYY-MM-DD): ");
-                date = LocalDate.parse(scanner.nextLine().trim());
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date.");
-                continue;
-            }
-
-            if (proposedPlan.stream()
-                    .noneMatch(meal -> meal.getDate().equals(date))) {
-                System.out.println("Date not found in the proposed plan.");
-                continue;
-            }
-            MealType  mealType = mealPlanService.getMealType();
-            int index = -1;
-
-            for (int i = 0; i < proposedPlan.size(); i++) {
-                MealPlan meal = proposedPlan.get(i);
-
-                if (meal.getDate().equals(date)
-                        && meal.getMealType() == mealType) {
-                    index = i;
-                    break;
-                }
-            }
-
-            if (index == -1) {
-                System.out.println("Meal not found.");
-                continue;
-            }
-
-            List<Recipe> recipeOptions = new ArrayList<>(recipes);
-
-            System.out.println("\nAvailable recipes:");
-
-            for (int i = 0; i < recipeOptions.size(); i++) {
-                System.out.printf("%d. %s%n",
-                        i + 1, recipeOptions.get(i).getName());
-            }
-
-            System.out.print("Select a recipe number (0 to cancel): ");
-            String input = scanner.nextLine().trim();
-
-            if (input.equals("0")) {
-                continue;
-            }
-
-            try {
-                int selected = Integer.parseInt(input);
-
-                if (selected < 1 || selected > recipeOptions.size()) {
-                    System.out.println("Invalid recipe number.");
-                    continue;
-                }
-
-                Recipe selectedRecipe = recipeOptions.get(selected - 1);
-
-                proposedPlan.set(index, new MealPlan(
-                        date, selectedRecipe, mealType));
-
-                System.out.println("Meal updated in the proposed plan.");
-
-            } catch (NumberFormatException e) {
-                System.out.println("Enter a valid number.");
-            }
-        }
-    }
-
-    private boolean confirmWeeklyMealPlan() {
-
-        System.out.print(
-                "\nSave this weekly meal plan? (Y/N): ");
-
-        String answer = scanner.nextLine().trim();
-
-        return answer.equalsIgnoreCase("Y")
-                || answer.equalsIgnoreCase("YES");
-    }
 
     private List<MealPlan> convertToMealPlans(
             AIWeeklyPlan weeklyPlan,
