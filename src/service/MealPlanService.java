@@ -16,7 +16,7 @@ public class MealPlanService  implements IMealPlanService{
     private final RecipeService recipeService = new RecipeService();
     private final ShoppingListService shoppingListService = new ShoppingListService();
 
-    public static List<MealPlan> mealPlans = new ArrayList<>();
+    public static List<MealPlan> mealPlanList = new ArrayList<>();
 
     @Override
     public void createWeeklyMealPlan() {
@@ -46,7 +46,7 @@ public class MealPlanService  implements IMealPlanService{
         }
         mealType = getMealType();
         // Check whether this meal has already been planned
-        for (MealPlan entry : MealPlanService.mealPlans) {
+        for (MealPlan entry : MealPlanService.mealPlanList) {
             if (entry.getDate().equals(date)
                     && entry.getMealType() == mealType) {
                 System.out.println("A recipe is already planned for this meal.");
@@ -61,7 +61,7 @@ public class MealPlanService  implements IMealPlanService{
         }
 
         MealPlan entry = new MealPlan(date, selectedRecipe,mealType);
-        MealPlanService.mealPlans.add(entry);
+        MealPlanService.mealPlanList.add(entry);
 
         System.out.println("\nMeal planned successfully!"   );
         System.out.println("Date: " + date);
@@ -71,7 +71,7 @@ public class MealPlanService  implements IMealPlanService{
     }
 
     public List<MealPlan>  getMealPlanByDates(LocalDate startDate,LocalDate endDate){
-        List<MealPlan> matchingMeals = MealPlanService.mealPlans.stream()
+        List<MealPlan> matchingMeals = MealPlanService.mealPlanList.stream()
                 .filter(meal -> !meal.getDate().isBefore(startDate))
                 .filter(meal -> !meal.getDate().isAfter(endDate))
                 .sorted(Comparator.comparing(MealPlan::getDate)
@@ -174,7 +174,7 @@ public class MealPlanService  implements IMealPlanService{
         }
     }
 
-    private MealType getMealType(){
+    public MealType getMealType(){
         while (true) {
             System.out.println("\nSelect meal type:");
             System.out.println("1. Breakfast");
