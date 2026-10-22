@@ -8,10 +8,12 @@ import ui.MainMenu;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class ManageRecipe {
 
    private static Scanner scanner = new Scanner(System.in);
+   private final RecipeService recipeService= new RecipeService();
 
   /*  public void createRecipe() {
         System.out.println();
@@ -255,6 +257,31 @@ public class ManageRecipe {
         System.out.println("Enter description :");
         String description = scanner.nextLine();
     return new Recipe(name, service, description);
+    }
+
+    public void viewAllRecipes() {
+        Set<Recipe> recipeList = recipeService.getAllRecipes();
+        System.out.println("\n=== All Recipes ===");
+
+        if (recipeList.isEmpty()) {
+            System.out.println("No recipes available. Add a recipe first.");
+            return;
+        }
+        int index = 1;
+
+        for (Recipe recipe : recipeList) {
+            System.out.println("\n" + index + ". " + recipe.getName());
+            System.out.println("Ingredients:");
+            for (Ingredient ingredient : recipe.getIngredients()) {
+                System.out.printf("   - %-15s %s %s%n",
+                        ingredient.getName(),
+                        ingredient.getQuantity(),
+                        ingredient.getUnit());
+            }
+            index++;
+        }
+
+        System.out.println("\nTotal recipes: " + recipeList.size());
     }
 
     private static void renameRecipe(Recipe recipe) {

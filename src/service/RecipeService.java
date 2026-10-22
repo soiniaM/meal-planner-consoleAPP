@@ -23,31 +23,9 @@ public class RecipeService implements IRecipeService {
         }
     }
 
-    @Override
-    public void viewAllRecipes() {
-        System.out.println("\n=== All Recipes ===");
-
-        if (recipeList.isEmpty()) {
-            System.out.println("No recipes available. Add a recipe first.");
-            return;
-        }
-        int index = 1;
-
-        for (Recipe recipe : recipeList) {
-            System.out.println("\n" + index + ". " + recipe.getName());
-            System.out.println("Ingredients:");
-            for (Ingredient ingredient : recipe.getIngredients()) {
-                System.out.printf("   - %-15s %s %s%n",
-                        ingredient.getName(),
-                        ingredient.getQuantity(),
-                        ingredient.getUnit());
-            }
-            index++;
-        }
-
-        System.out.println("\nTotal recipes: " + recipeList.size());
-    }
-
+    public Set<Recipe> getAllRecipes(){
+        return recipeList;
+}
     @Override
     public void deleteRecipe() {
         ManageRecipe.deleteRecipe();

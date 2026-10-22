@@ -10,6 +10,7 @@ public class ManageRecipeConsole {
 
     public void manageRecipes() {
          IRecipeService recipeService = new RecipeService();
+         ManageRecipe manageRecipe = new ManageRecipe();
         Scanner scanner = new Scanner(System.in);
 
         boolean running = true;
@@ -34,7 +35,7 @@ public class ManageRecipeConsole {
                     break;
 
                 case 2:
-                    recipeService.viewAllRecipes();
+                    manageRecipe.viewAllRecipes();
              //      System.out.println("View Recipes selected.");
                     break;
 
